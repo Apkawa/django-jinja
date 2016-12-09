@@ -23,6 +23,7 @@ from django.middleware import csrf
 from django.template import TemplateDoesNotExist
 from django.template import TemplateSyntaxError
 from django.template.backends.base import BaseEngine
+from django.template.backends.utils import csrf_input_lazy
 from django.template.context import BaseContext
 from django.utils import lru_cache
 from django.utils import six
@@ -43,6 +44,7 @@ class Origin(object):
     A container to hold debug information as described in the template API
     documentation.
     """
+
     def __init__(self, name, template_name):
         self.name = name
         self.template_name = template_name
@@ -74,6 +76,7 @@ class Template(object):
 
             context["request"] = request
             context["csrf_token"] = SimpleLazyObject(_get_val)
+            context["csrf_input"] = csrf_input_lazy(request)
 
             # Support for django context processors
             for processor in self.backend.context_processors:
@@ -96,8 +99,7 @@ class Template(object):
                 context = CompatibilityContext(context)
 
             signals.template_rendered.send(sender=self, template=self,
-                                           context=context)
-
+                context=context)
 
         return mark_safe(self.template.render(context))
 
@@ -197,14 +199,12 @@ class Jinja2(BaseEngine):
         self._bytecode_cache = bytecode_cache
 
         self._initialize_builtins(filters=extra_filters,
-                                  tests=extra_tests,
-                                  globals=extra_globals,
-                                  constants=extra_constants)
+            tests=extra_tests,
+            globals=extra_globals,
+            constants=extra_constants)
 
         self._initialize_thirdparty()
         self._initialize_bytecode_cache()
-
-
 
     def _initialize_bytecode_cache(self):
         if self._bytecode_cache["enabled"]:
@@ -269,8 +269,8 @@ class Jinja2(BaseEngine):
 
     def match_template(self, template_name):
         return base.match_template(template_name,
-                                   self._match_extension,
-                                   self._match_regex)
+            self._match_extension,
+            self._match_regex)
 
     def get_template(self, template_name):
         if not self.match_template(template_name):

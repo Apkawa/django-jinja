@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
 
-import traceback
 import logging
 
 import django
@@ -9,12 +8,8 @@ from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.cache import cache
 from django.core.urlresolvers import NoReverseMatch
 from django.core.urlresolvers import reverse
-from django.utils.formats import localize
-from django.utils.translation import pgettext
-from django.utils.translation import ugettext
 from jinja2 import Markup
 from jinja2 import TemplateSyntaxError
-from jinja2 import lexer
 from jinja2 import nodes
 from jinja2.ext import Extension
 
